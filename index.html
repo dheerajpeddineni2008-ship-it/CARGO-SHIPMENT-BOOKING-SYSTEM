@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoBooking - Cargo Shipment Booking System</title>
+    <!-- TODO: check if we need minified css later -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h2>CargoBooking</h2>
+        <p>Cargo Shipment Booking System</p>
+    </header>
+
+    <div class="container">
+        <div class="welcome">
+            <h2>Shipment Dashboard</h2>
+            <p>Manage cargo bookings and track the status of each shipment.</p>
+        </div>
+
+        <!-- stat counters, maybe add more later? -->
+        <div class="stats">
+            <div class="stat-box">
+                <p>Total Bookings</p>
+                <h2 id="totalCount">0</h2>
+            </div>
+            <div class="stat-box">
+                <p>In Transit</p>
+                <h2 id="transitCount">0</h2>
+            </div>
+            <div class="stat-box">
+                <p>Delivered</p>
+                <h2 id="deliveredCount">0</h2>
+            </div>
+            <div class="stat-box">
+                <p>Delayed</p>
+                <h2 id="delayedCount">0</h2>
+            </div>
+        </div>
+
+        <div class="section" id="new-booking">
+            <h3>Book New Cargo</h3>
+            <!-- booking form starts here -->
+            <form id="bookingForm">
+                <div class="form-grid">
+                    <div>
+                        <label for="sender">Sender Name</label>
+                        <input type="text" id="sender" placeholder="Enter sender name" maxlength="60" required>
+                    </div>
+                    <div>
+                        <label for="receiver">Receiver Name</label>
+                        <input type="text" id="receiver" placeholder="Enter receiver name" maxlength="60" required>
+                    </div>
+                    <div>
+                        <label for="pickup">Pickup Location</label>
+                        <input type="text" id="pickup" placeholder="e.g. Hyderabad" maxlength="80" required>
+                    </div>
+                    <div>
+                        <label for="destination">Delivery Location</label>
+                        <input type="text" id="destination" placeholder="e.g. Mumbai" maxlength="80" required>
+                    </div>
+                    <div>
+                        <label for="cargoType">Cargo Type</label>
+                        <select id="cargoType" required>
+                            <option value="">Select cargo type</option>
+                            <option>Electronics</option>
+                            <option>Clothing</option>
+                            <option>Food Products</option>
+                            <option>Furniture</option>
+                            <option>Machinery</option>
+                            <option>Documents</option>
+                            <option>Others</option>
+                        </select>
+                    </div>
+                    <div>
+                        <!-- weight in kg -->
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="Enter weight" min="0.1" step="0.1" required>
+                    </div>
+                    <div>
+                        <label for="eta">Expected Delivery Date</label>
+                        <input type="date" id="eta" required>
+                    </div>
+                </div>
+                <p class="small">Enter the pickup and delivery cities.</p>
+                <button type="submit" class="book-btn">Book Shipment</button>
+                <p id="message" class="message" role="status"></p>
+            </form>
+        </div>
+
+        <div class="section">
+            <div class="table-top">
+                <h3>Bookings</h3>
+                <div class="table-filters">
+                    <input type="search" id="search" placeholder="Search bookings">
+                    <!-- status_filter dropdown -->
+                    <select id="statusFilter">
+                        <option value="All">All statuses</option>
+                        <option>Booked</option>
+                        <option>Dispatched</option>
+                        <option>In Transit</option>
+                        <option>Arriving</option>
+                        <option>Delayed</option>
+                        <option>Delivered</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Sender</th>
+                            <th>Receiver</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Cargo</th>
+                            <th>Weight</th>
+                            <th>Expected Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="two-columns">
+            <div class="section">
+                <h3>Shipment Tracking</h3>
+                <p class="small">Select Track on any booking to see its progress.</p>
+                <div class="tracking-heading">
+                    <strong id="trackingId">No shipment selected</strong>
+                    <span id="trackingStatus" class="status-tag">—</span>
+                </div>
+                <div class="steps" id="trackingSteps">
+                    <div class="step"><span class="circle">1</span><span>Booked</span></div>
+                    <div class="step"><span class="circle">2</span><span>Dispatched</span></div>
+                    <div class="step"><span class="circle">3</span><span>In Transit</span></div>
+                    <div class="step"><span class="circle">4</span><span>Arriving</span></div>
+                    <div class="step"><span class="circle">5</span><span>Delivered</span></div>
+                </div>
+                <div class="route-box">
+                    <div><small>Pickup</small><strong id="routeFrom">—</strong></div>
+                    <span class="route-arrow">→</span>
+                    <div><small>Destination</small><strong id="routeTo">—</strong></div>
+                </div>
+
+       
+                <p id="trackingNote" class="small">Add or select a shipment to view its details.</p>
+                <p class="small"><strong>Expected delivery:</strong> <span id="trackingEta">—</span></p>
+                <div class="tracking-update">
+                    <label for="selectedStatus">Update selected status</label>
+                    <div class="inline-controls">
+                        <!-- mixed naming convention here: selected_status vs selectedStatus in JS -->
+                        <select id="selectedStatus" disabled>
+                            <option>Booked</option>
+                            <option>Dispatched</option>
+                            <option>In Transit</option>
+                            <option>Arriving</option>
+                            <option>Delayed</option>
+                            <option>Delivered</option>
+                        </select>
+                        <button type="button" id="updateStatusButton" class="book-btn" disabled>Update Status</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Quick Analytics</h3>
+                <p class="small">Number of bookings at each status.</p>
+                <div id="analyticsBars"></div>
+                <div class="analytics-total">
+                    <span>Delivery completion</span>
+                    <strong id="deliveryPercent">0%</strong>
+                </div>
+                <div class="progress-line"><div id="deliveryBar"></div></div>
+                <p class="small">Figures update when you add, update or delete shipments.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Recent Activity</h3>
+            <div id="activityList" class="activity-list"></div>
+        </div>
+    </div>
+
+    <footer>Cargo Booking System</footer>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
